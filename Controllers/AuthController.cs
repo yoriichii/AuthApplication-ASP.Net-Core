@@ -81,6 +81,37 @@ namespace AuthApplication.Controllers
             return Ok(new { message = "Success" });
         }
 
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            // Remove the JWT cookie to invalidate the session
+            Response.Cookies.Delete("jwt");
+
+            return Ok(new { message = "Logged out successfully" });
+        }
+
+        [HttpGet("user")]
+
+        public IActionResult GetUser()
+        {
+            try
+            {
+                //user got from cookie
+                var jwt = Request.Cookies["jwt"];
+                //validate the jwt
+                var token = jwtService.Verify(jwt);
+                //Issuer store userID
+                int userId = int.Parse(token.Issuer);
+                var user = authContext.Users.FirstOrDefault(u => u.Id == userId);
+                return Ok(user);
+            }
+            catch
+            {  
+                return Unauthorized();
+            }
+        }
+
+
         [HttpDelete("{id:int}")]
 
         public IActionResult DeleteAuth(int id)

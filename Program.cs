@@ -3,6 +3,7 @@ using AuthApplication.Helpers;
 using AuthApplication.MapperProfile;
 using AuthApplication.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,15 +21,8 @@ builder.Services.AddDbContext<AuthContext>(options =>
 );
 
 // CORS Configuration
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", builder =>
-    {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
-    });
-});
+builder.Services.AddCors();
+
 
 var app = builder.Build();
 
@@ -41,8 +35,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAll");
-
+app.UseCors(options => options
+   .WithOrigins("http://localhost:3000", "http://localhost:8080", "http://localhost:4200")
+   .AllowAnyHeader()
+   .AllowAnyMethod()
+   .AllowCredentials()
+);    
+ 
 app.UseAuthorization();
 
 app.MapControllers();
